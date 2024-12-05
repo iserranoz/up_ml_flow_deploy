@@ -63,7 +63,7 @@ jobs:
       if: env.deploy == 'true'
       run: |
         mkdir -p artifacts
-        python -c "
+        python -c '
         import mlflow
         import os
         from mlflow.tracking import MlflowClient
@@ -73,7 +73,7 @@ jobs:
         destination_path = './artifacts'
         mlflow.artifacts.download_artifacts(artifact_uri=model_uri, dst_path=destination_path)
         print(f'Artifacts downloaded to: {destination_path}')
-        "
+        '
         mv ./artifacts/model/* ./artifacts/
 
     - name: Build Docker image
