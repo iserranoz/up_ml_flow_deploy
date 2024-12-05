@@ -70,9 +70,8 @@ jobs:
         os.environ["MLFLOW_TRACKING_URI"] = "https://ml-flow-cloud-server-994147292151.us-central1.run.app"
         client = MlflowClient()
         model_uri = "runs:/${{ env.MODEL_URI }}/model}"
-        destination_path = './artifacts'
+        destination_path = "./artifacts"
         mlflow.artifacts.download_artifacts(artifact_uri=model_uri, dst_path=destination_path)
-        print(f'Artifacts downloaded to: {destination_path}')
         '
         mv ./artifacts/model/* ./artifacts/
 
