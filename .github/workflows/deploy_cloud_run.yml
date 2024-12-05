@@ -48,6 +48,12 @@ jobs:
       if: env.deploy == 'true'
       run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
+    - name: Set up Python and install dependencies
+      if: env.deploy == 'true'
+      run: |
+        python -m pip install --upgrade pip
+        pip install mlflow pandas
+
     - name: Download MLflow artifacts
       if: env.deploy == 'true'
       run: |
@@ -58,7 +64,7 @@ jobs:
         model_uri = 'runs:/${{ env.MODEL_URI }}/model'
         destination_path = './artifacts'
         mlflow.artifacts.download_artifacts(artifact_uri=model_uri, dst_path=destination_path)
-        print(f'Artifacts downloaded to: {artifacts_path}')
+        print(f'Artifacts downloaded to: {destination_path}')
         "
         mv ./artifacts/model/* ./artifacts/
 
