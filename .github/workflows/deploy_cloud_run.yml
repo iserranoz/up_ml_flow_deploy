@@ -14,8 +14,8 @@ jobs:
       REPOSITORY: ml-flow-repo
       SERVICE_ACCOUNT: ml-flow-up-sa@ml-flow-up-2024.iam.gserviceaccount.com
       SERVICE_NAME: model_predict-server
-      IMAGE_NAME: mlflow_deploy  # Variable configurable para el nombre de la imagen
-      DEPLOY: true  # Controlador de flujo de despliegue
+      IMAGE_NAME: mlflow_deploy
+      DEPLOY: true
       MODEL_URI: 067fe94ec8eb47e5adbe1262f781db2b
 
     steps:
@@ -47,6 +47,11 @@ jobs:
     - name: Docker config
       if: env.deploy == 'true'
       run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+    - name: Set MLflow tracking URI
+      if: env.deploy == 'true'
+      run: |
+        export MLFLOW_TRACKING_URI="https://ml-flow-cloud-server-994147292151.us-central1.run.app"
 
     - name: Set up Python and install dependencies
       if: env.deploy == 'true'
