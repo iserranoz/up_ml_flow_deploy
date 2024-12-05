@@ -1,0 +1,84 @@
+name: Deploy MLFlow API to Cloud Run
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      REGION: us-central1
+      PROJECT_ID: ml-flow-up-2024
+      REPOSITORY: ml-flow-repo
+      SERVICE_ACCOUNT: ml-flow-up-sa@ml-flow-up-2024.iam.gserviceaccount.com
+      SERVICE_NAME: model_predict-server
+      IMAGE_NAME: mlflow_deploy  # Variable configurable para el nombre de la imagen
+      DEPLOY: false  # Controlador de flujo de despliegue
+      MODEL_URI: 067fe94ec8eb47e5adbe1262f781db2b
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Check if deploy is enabled
+      id: check_deploy
+      run: |
+        if [ "${{ env.DEPLOY }}" == "true" ]; then
+          echo "Deploy enabled."
+          echo "deploy=true" >> $GITHUB_ENV
+        else
+          echo "Deploy disabled. Skipping deployment steps."
+          echo "deploy=false" >> $GITHUB_ENV
+        fi
+
+    - name: Skip steps if deploy is disabled
+      if: env.deploy == 'false'
+      run: echo "Deployment is disabled. Exiting workflow."
+
+    - name: Authenticate to Google Cloud
+      if: env.deploy == 'true'
+      uses: google-github-actions/auth@v1
+      with:
+        project_id: ${{ env.PROJECT_ID }}
+        credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+    - name: Docker config
+      if: env.deploy == 'true'
+      run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+    - name: Download MLflow artifacts
+      if: env.deploy == 'true'
+      run: |
+        mkdir -p artifacts
+        python -c "
+        import mlflow
+        import os
+        model_uri = 'runs:/${{ env.MODEL_URI }}/model'
+        destination_path = './artifacts'
+        mlflow.artifacts.download_artifacts(artifact_uri=model_uri, dst_path=destination_path)
+        print(f'Artifacts downloaded to: {artifacts_path}')
+        "
+        mv ./artifacts/model/* ./artifacts/
+
+    - name: Build Docker image
+      if: env.deploy == 'true'
+      run: |
+        docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" .
+
+    - name: Push Docker image
+      if: env.deploy == 'true'
+      run: |
+        docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+
+    - name: Deploy to Cloud Run
+      if: env.deploy == 'true'
+      run: |
+        gcloud run deploy "${{ env.SERVICE_NAME }}" \
+          --image "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" \
+          --region "${{ env.REGION }}" \
+          --service-account "${{ env.SERVICE_ACCOUNT }}" \
+          --memory 2Gi \
+          --allow-unauthenticated \
+          --port 8080

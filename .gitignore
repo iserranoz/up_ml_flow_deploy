@@ -1,0 +1,17 @@
+# Ignorar la carpeta artifacts
+artifacts/
+
+# Ignorar archivos .DS_Store de macOS
+.DS_Store
+
+# Ignorar cachés de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignorar entornos virtuales y archivos de entorno
+venv/
+.env
+
+# Ignorar archivos de logs
+*.log
