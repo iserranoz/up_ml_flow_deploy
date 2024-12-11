@@ -15,7 +15,7 @@ jobs:
       SERVICE_ACCOUNT: ""
       SERVICE_NAME: model-predict-demo4
       IMAGE_NAME: mlflow-deploy-demo4
-      DEPLOY: true
+      DEPLOY: false
       MODEL_URI: ""
 
     steps:
