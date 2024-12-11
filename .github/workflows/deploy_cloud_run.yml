@@ -9,14 +9,14 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      REGION: us-central1
-      PROJECT_ID: ml-flow-up-2024
-      REPOSITORY: ml-flow-repo
-      SERVICE_ACCOUNT: ml-flow-up-sa@ml-flow-up-2024.iam.gserviceaccount.com
+      REGION: ""
+      PROJECT_ID: ""
+      REPOSITORY: ""
+      SERVICE_ACCOUNT: ""
       SERVICE_NAME: model-predict-demo4
       IMAGE_NAME: mlflow-deploy-demo4
       DEPLOY: true
-      MODEL_URI: 5070a5de986b4eaab06a3f2c468807eb
+      MODEL_URI: ""
 
     steps:
     - name: Checkout code
