@@ -15,7 +15,7 @@ jobs:
       SERVICE_ACCOUNT: ml-flow-up-sa@ml-flow-up-2024.iam.gserviceaccount.com
       SERVICE_NAME: model-predict-demo4
       IMAGE_NAME: mlflow-deploy-demo4
-      DEPLOY: false
+      DEPLOY: true
       MODEL_URI: 5070a5de986b4eaab06a3f2c468807eb
 
     steps:
